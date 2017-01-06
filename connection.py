@@ -37,32 +37,28 @@ with SwiftService(authDict) as swift, OutputManager() as out_manager:
         # build the ``SwiftUploadObject``s for the call to upload
         objsVar = [
             SwiftUploadObject(
-                o, object_name=o.replace(
-                    directoryVar, 'objects', 1              # Modify this to remove prefix
-                )
+                o
             ) for o in objsVar
             ]
         dir_markers = [
             SwiftUploadObject(
-                None, object_name=d.replace(
-                    directoryVar, 'objects', 1              # Modify this to remove prefix
-                ), options={'dir_marker': True}
+                d, options={'dir_marker': True}
             ) for d in dir_markers
         ]
 
         # Schedule uploads on the SwiftService thread pool and iterate
         # over the results
-        for r in swift.upload(containerVar, objsVar + dir_markers):
-            if r['success']:
-                if 'object' in r:
-                    print(r['object'])
-                elif 'for_object' in r:
-                    print(
+        for r in swift.upload(containerVar, objsVar + dir_markers):     # Upload happens here!
+            if r['success']:                                # If successfully uploaded
+                if 'object' in r:                           # and it's an object
+                    print(r['object'])                      # print out the object name
+                elif 'for_object' in r:                     # or if it is an object segment
+                    print(                                  # print the relative crap for a segment
                         '%s segment %s' % (r['for_object'],
                                            r['segment_index'])
                         )
             else:
-                error = r['error']
+                error = r['error']                          # If not successful, tell me why
                 if r['action'] == "create_container":
                     logger.warning(
                         'Warning: failed to create container '
