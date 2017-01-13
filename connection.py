@@ -1,6 +1,6 @@
 # Imports
 import logging
-from os import walk
+from os import walk, path
 from os.path import join
 from swiftclient.multithreading import OutputManager
 from swiftclient.service import SwiftService, SwiftError, SwiftUploadObject
@@ -27,7 +27,6 @@ with SwiftService(authDict) as swift, OutputManager() as out_manager:
         objsVar = []
         dir_markers = []
         for (_dir, _ds, _fs) in walk(directoryVar):
-            # print "I am here: ", _dir
             if not (_ds + _fs):
                 dir_markers.append(_dir)
             else:
@@ -37,14 +36,16 @@ with SwiftService(authDict) as swift, OutputManager() as out_manager:
         # build the ``SwiftUploadObject``s for the call to upload
         objsVar = [
             SwiftUploadObject(
-                o
+                o, object_name=path.relpath(o, directoryVar)
             ) for o in objsVar
             ]
         dir_markers = [
             SwiftUploadObject(
-                d, options={'dir_marker': True}
+                d, object_name=path.relpath(d, directoryVar), options={'dir_marker': True}
             ) for d in dir_markers
         ]
+
+        exit()              # DEBUG - stop program processing here to debug
 
         # Schedule uploads on the SwiftService thread pool and iterate
         # over the results
