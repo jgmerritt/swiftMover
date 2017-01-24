@@ -74,7 +74,7 @@ with SwiftService(authDict) as swift, OutputManager() as out_manager:
                 elif r['action'] == "upload_object":
                     logger.error(
                         "Failed to upload object %s to container %s: %s" %
-                        (containerVar, r['object'], error)
+                        (r['object'], containerVar, error)
                     )
                 else:
                     logger.error("%s" % error)
