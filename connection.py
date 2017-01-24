@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 
 # Account information
 authVersion = '1.0'
-authURL = 'http://192.168.244.10/auth/v1.0'
-user = 'test:tester'
+authURL = 'https://brtnswiftdev.burton.com/auth/v1.0'
+user = 'test'
 key = 'testing'
 uu_threads = 20
 authDict = {"auth_version": authVersion, "auth": authURL, "user": user, "key": key, "object_uu_threads": uu_threads}
