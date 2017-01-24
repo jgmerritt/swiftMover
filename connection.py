@@ -5,10 +5,15 @@ from os.path import join
 from swiftclient.multithreading import OutputManager
 from swiftclient.service import SwiftService, SwiftError, SwiftUploadObject
 
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.DEBUG)
 logging.getLogger("requests").setLevel(logging.CRITICAL)
 logging.getLogger("swiftclient").setLevel(logging.CRITICAL)
 logger = logging.getLogger(__name__)
+fh = logging.FileHandler('swiftDataMove.log')
+formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+fh.setLevel(logging.DEBUG)
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 # Account information
 authVersion = '1.0'
@@ -19,21 +24,21 @@ uu_threads = 20
 authDict = {"auth_version": authVersion, "auth": authURL, "user": user, "key": key, "object_uu_threads": uu_threads}
 
 # TODO - make directoryVar an argument on the command line
-directoryVar = '/Users/jimm/A_Test'
+directoryVar = '/Users/jimm'
 
 # TODO - make the containerVar an argument on the command line
-containerVar = 'container2'
+containerVar = 'container3'
 
 with SwiftService(authDict) as swift, OutputManager() as out_manager:
     try:
         # Collect all the files and folders in the given directory
         objsVar = []
         dir_markers = []
-        for (_dir, _ds, _fs) in walk(directoryVar):
+        for (_dir, _ds, _fs) in walk(unicode(directoryVar)):    # walk directory and force unicode decoding
             if not (_ds + _fs):
-                dir_markers.append(_dir)
+                dir_markers.append(_dir)                        # create list of pseudo directory objects
             else:
-                objsVar.extend([join(_dir, _f) for _f in _fs])
+                objsVar.extend([join(_dir, _f) for _f in _fs])  # create list of objects
 
         # Now that we've collected all the required files and dir markers
         # build the ``SwiftUploadObject``s for the call to upload
@@ -47,9 +52,6 @@ with SwiftService(authDict) as swift, OutputManager() as out_manager:
                 d, object_name=path.relpath(d, directoryVar), options={'dir_marker': True}
             ) for d in dir_markers
         ]
-
-        # DEBUG --  uncomment to stop program processing at this point
-        # exit()
 
         # Schedule uploads on the SwiftService thread pool and iterate
         # over the results
