@@ -18,8 +18,11 @@ key = 'testing'
 uu_threads = 20
 authDict = {"auth_version": authVersion, "auth": authURL, "user": user, "key": key, "object_uu_threads": uu_threads}
 
-directoryVar = '/home/jimm/uploadtest'
-containerVar = 'container1'
+# TODO - make directoryVar an argument on the command line
+directoryVar = '/Users/jimm/A_Test'
+
+# TODO - make the containerVar an argument on the command line
+containerVar = 'container2'
 
 with SwiftService(authDict) as swift, OutputManager() as out_manager:
     try:
@@ -45,7 +48,8 @@ with SwiftService(authDict) as swift, OutputManager() as out_manager:
             ) for d in dir_markers
         ]
 
-        exit()              # DEBUG - stop program processing here to debug
+        # DEBUG --  uncomment to stop program processing at this point
+        # exit()
 
         # Schedule uploads on the SwiftService thread pool and iterate
         # over the results
