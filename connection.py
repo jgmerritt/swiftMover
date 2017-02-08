@@ -24,7 +24,7 @@ uu_threads = 20
 authDict = {"auth_version": authVersion, "auth": authURL, "user": user, "key": key, "object_uu_threads": uu_threads}
 
 # TODO - make directoryVar an argument on the command line
-directoryVar = '/Users/jimm'
+directoryVar = '/home/jimm'
 
 # TODO - make the containerVar an argument on the command line
 containerVar = 'container3'
@@ -38,6 +38,8 @@ with SwiftService(authDict) as swift, OutputManager() as out_manager:
             if not (_ds + _fs):
                 dir_markers.append(_dir)                        # create list of pseudo directory objects
             else:
+                if '.DS_Store' in _fs:
+                    _fs.remove('.DS_Store')
                 objsVar.extend([join(_dir, _f) for _f in _fs])  # create list of objects
 
         # Now that we've collected all the required files and dir markers
@@ -52,6 +54,14 @@ with SwiftService(authDict) as swift, OutputManager() as out_manager:
                 d, object_name=path.relpath(d, directoryVar), options={'dir_marker': True}
             ) for d in dir_markers
         ]
+
+        for _objs in objsVar:
+            try:
+                print _objs.object_name
+            except UnicodeEncodeError:
+                print "Failure to upload: ", _objs.source
+                pass
+        exit()
 
         # Schedule uploads on the SwiftService thread pool and iterate
         # over the results
