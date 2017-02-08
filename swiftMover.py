@@ -20,8 +20,8 @@ authVersion = '1.0'
 authURL = 'https://brtnswiftdev.burton.com/auth/v1.0'
 user = 'test'
 key = 'testing'
-uu_threads = 20
-authDict = {"auth_version": authVersion, "auth": authURL, "user": user, "key": key, "object_uu_threads": uu_threads}
+uu_threads = 30
+authDict = {"auth_version": authVersion, "auth": authURL, "user": user, "key": key, "object_uu_threads": uu_threads, "segment_size": 5368709120}
 
 # TODO - make directoryVar an argument on the command line
 directoryVar = '/home/jimm'
