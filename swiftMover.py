@@ -4,6 +4,7 @@ from os import walk, path
 from os.path import join
 from swiftclient.multithreading import OutputManager
 from swiftclient.service import SwiftService, SwiftError, SwiftUploadObject
+from sys import argv
 
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger("requests").setLevel(logging.CRITICAL)
@@ -20,14 +21,15 @@ authVersion = '1.0'
 authURL = 'https://brtnswiftdev.burton.com/auth/v1.0'
 user = 'test'
 key = 'testing'
+# Options for the SwiftService object creation
 uu_threads = 30
-authDict = {"auth_version": authVersion, "auth": authURL, "user": user, "key": key, "object_uu_threads": uu_threads, "segment_size": 5368709120}
+segment_size = 5368709120
+# Build the dictionary to pass for SwiftService
+authDict = {"auth_version": authVersion, "auth": authURL, "user": user, "key": key, "object_uu_threads": uu_threads, "segment_size": segment_size}
 
-# TODO - make directoryVar an argument on the command line
-directoryVar = '/home/jimm'
-
-# TODO - make the containerVar an argument on the command line
-containerVar = 'container3'
+# Command line arguments <command> <container> <directory_path>
+containerVar = argv[1]
+directoryVar = argv[2]
 
 with SwiftService(authDict) as swift, OutputManager() as out_manager:
     try:
@@ -55,13 +57,17 @@ with SwiftService(authDict) as swift, OutputManager() as out_manager:
             ) for d in dir_markers
         ]
 
-        for _objs in objsVar:
-            try:
-                print _objs.object_name
-            except UnicodeEncodeError:
-                print "Failure to upload: ", _objs.source
-                pass
-        exit()
+        #f = open('objectList.txt', 'w')
+        #for _objs in objsVar:
+        #    try:
+        #        f.write(_objs.object_name)
+        #        f.write('\n')
+        #    except UnicodeEncodeError:
+        #        print "Error on Unicode: ", _objs.source
+        #        pass
+        #f.close()
+        #print('Completed object listing')
+        #exit()
 
         # Schedule uploads on the SwiftService thread pool and iterate
         # over the results
@@ -88,6 +94,7 @@ with SwiftService(authDict) as swift, OutputManager() as out_manager:
                     )
                 else:
                     logger.error("%s" % error)
+        print('Transfer Completed')
 
     except SwiftError as e:
         logger.error(e.value)
